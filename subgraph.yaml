@@ -13,10 +13,11 @@ dataSources:
           apiVersion: 0.0.6
           language: wasm/assemblyscript
           entities:
-              - ExtensionEntity
-              - MarketEntity
-              - TransactionEntity
-              - ProductEntity
+              - PoolEntity
+              - DepositEntity
+              - LoanEntity
+              - RepayEntity
+              - AccountEntity
           abis:
               - name: ILeverV1Pool
                 file: ./abis/ILeverV1Pool.json
