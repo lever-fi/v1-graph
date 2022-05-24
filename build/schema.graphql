@@ -1,0 +1,57 @@
+enum LOAN_STATUS {
+	LIQUIDATED
+	OPEN
+	COMPLETED
+}
+
+type PoolEntity @entity {
+	id: ID!
+	address: Bytes!
+	created_at: BigInt!
+	original_collection: Bytes!
+	collateral_coverage_rate: BigInt!
+	interest_rate: BigInt!
+	compound_interval: BigInt!
+	burn_rate: BigInt!
+	loan_term: BigInt!
+	min_liquidity: BigInt!
+	min_deposit: BigInt!
+	deposits: [DepositEntity!]! @derivedFrom(field: "pool")
+	loans: [LoanEntity!]! @derivedFrom(field: "pool")
+	repayments: [RepayEntity!]! @derivedFrom(field: "pool")
+}
+
+type DepositEntity @entity {
+	id: ID!
+	pool: PoolEntity!
+	account: AccountEntity!
+	occurred_at: BigInt!
+	value: BigInt!
+}
+
+type LoanEntity @entity {
+	id: ID!
+	created_at: BigInt!
+	pool: PoolEntity!
+	account: AccountEntity!
+	balance: BigInt!
+	token_id: BigInt!
+	status: LOAN_STATUS!
+}
+
+type RepayEntity @entity {
+	id: ID!
+	pool: PoolEntity!
+	account: AccountEntity!
+	occurred_at: BigInt!
+	value: BigInt!
+	token_id: BigInt!
+}
+
+type AccountEntity @entity {
+	id: ID!
+	address: Bytes!
+	deposits: [DepositEntity!]! @derivedFrom(field: "account")
+	loans: [LoanEntity!]! @derivedFrom(field: "account")
+	repayments: [RepayEntity!]! @derivedFrom(field: "account")
+}

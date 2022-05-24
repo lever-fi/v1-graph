@@ -1,0 +1,36 @@
+specVersion: 0.0.2
+schema:
+  file: schema.graphql
+dataSources:
+  - kind: ethereum/contract
+    name: LeverV1Pool
+    network: kovan
+    source:
+      abi: ILeverV1Pool
+      startBlock: 31680351
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.6
+      language: wasm/assemblyscript
+      entities:
+        - ExtensionEntity
+        - MarketEntity
+        - TransactionEntity
+        - ProductEntity
+      abis:
+        - name: ILeverV1Pool
+          file: LeverV1Pool/abis/ILeverV1Pool.json
+      eventHandlers:
+        - event: Created(indexed address,uint256,uint256,uint256,uint256,uint256,uint256,uint256)
+          handler: handleCreatePool
+        - event: Deposit(indexed address,uint256)
+          handler: handleDeposit
+        - event: Collect(indexed address,uint256)
+          handler: handleCollect
+        - event: Borrow(indexed address,uint256,uint256)
+          handler: handleBorrow
+        - event: Repay(indexed address,uint256,uint256)
+          handler: handleRepay
+        - event: Liquidate(uint256,uint256)
+          handler: handleLiquidate
+      file: LeverV1Pool/LeverV1Pool.wasm
