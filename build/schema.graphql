@@ -4,21 +4,57 @@ enum LOAN_STATUS {
 	COMPLETED
 }
 
+enum EVENT {
+	BORROW
+	DEPOSIT
+	COLLECT
+	REPAY
+	LIQUIDATE
+}
+
 type PoolEntity @entity {
 	id: ID!
 	address: Bytes!
 	created_at: BigInt!
-	original_collection: Bytes!
-	collateral_coverage_rate: BigInt!
+	synthetic_collection: SyntheticCollectionEntity! @derivedFrom(field: "pool")
+	original_collection: OriginalCollectionEntity! @derivedFrom(field: "pool")
+	token: TokenEntity! @derivedFrom(field: "pool")
+	collateral_coverage_ratio: BigInt!
 	interest_rate: BigInt!
-	compound_interval: BigInt!
+	charge_interval: BigInt!
 	burn_rate: BigInt!
 	loan_term: BigInt!
 	min_liquidity: BigInt!
 	min_deposit: BigInt!
+	payment_frequency: BigInt!
 	deposits: [DepositEntity!]! @derivedFrom(field: "pool")
 	loans: [LoanEntity!]! @derivedFrom(field: "pool")
 	repayments: [RepayEntity!]! @derivedFrom(field: "pool")
+	events: [EventEntity!]! @derivedFrom(field: "pool")
+}
+
+type SyntheticCollectionEntity @entity {
+	id: ID!
+	pool: PoolEntity!
+	address: Bytes!
+	name: String!
+	symbol: String!
+}
+
+type OriginalCollectionEntity @entity {
+	id: ID!
+	pool: PoolEntity!
+	address: Bytes!
+	name: String!
+	symbol: String!
+}
+
+type TokenEntity @entity {
+	id: ID!
+	pool: PoolEntity!
+	address: Bytes!
+	name: String!
+	symbol: String!
 }
 
 type DepositEntity @entity {
@@ -29,12 +65,29 @@ type DepositEntity @entity {
 	value: BigInt!
 }
 
+type InstallmentEntity @entity {
+	id: ID!
+	amount: BigInt!
+	due_at: BigInt!
+	loan: LoanEntity!
+}
+
 type LoanEntity @entity {
 	id: ID!
 	created_at: BigInt!
 	pool: PoolEntity!
 	account: AccountEntity!
-	balance: BigInt!
+	principal: BigInt!
+	interest: BigInt!
+	daily_percent_rate: BigInt!
+	payment_frequency: BigInt!
+	loan_term: BigInt!
+	finalized_at: BigInt!
+	active: Boolean!
+	repayment_allowance: BigInt!
+	installments: [InstallmentEntity!]! @derivedFrom(field: "loan")
+	installments_remaining: BigInt!
+	collateral: BigInt!
 	token_id: BigInt!
 	status: LOAN_STATUS!
 }
@@ -54,4 +107,15 @@ type AccountEntity @entity {
 	deposits: [DepositEntity!]! @derivedFrom(field: "account")
 	loans: [LoanEntity!]! @derivedFrom(field: "account")
 	repayments: [RepayEntity!]! @derivedFrom(field: "account")
+}
+
+type EventEntity @entity {
+	id: ID!
+	parent_id: ID!
+	event_type: EVENT!
+	pool: PoolEntity!
+	account: AccountEntity!
+	occurred_at: BigInt!
+	value: BigInt!
+	token_id: BigInt
 }
